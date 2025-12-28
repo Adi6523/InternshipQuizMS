@@ -91,47 +91,7 @@ public class AdminService {
             e.printStackTrace();
         }
     }
-
     
-    public void listQuizzes() {
-
-        try (QuizDao quizDao = new QuizDao()) {
-
-            List<Quizzes> quizList = quizDao.selectQuiz();
-
-            if (quizList.isEmpty()) {
-                System.out.println("No quizzes available.");
-                return;
-            }
-
-            System.out.println("\nAvailable Quizzes:");
-            int index = 1;
-            for (Quizzes quiz : quizList) {
-                System.out.println(index++ + ". " + quiz.getTitle());
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }  
-
-
-    public void deleteQuiz(Scanner sc) {
-
-        try {
-            sc.nextLine();
-            System.out.print("Enter Quiz Title to Delete : ");
-            String title = sc.nextLine();
-
-            try (QuizDao quizDao = new QuizDao()) {
-                quizDao.deleteQuiz(title);
-                System.out.println("Quiz deleted successfully!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     
     
     public void viewScoresForQuiz(Scanner sc) {
