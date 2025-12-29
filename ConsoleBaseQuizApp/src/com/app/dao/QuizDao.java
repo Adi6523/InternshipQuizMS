@@ -1,0 +1,55 @@
+package com.app.dao;
+import com.app.model.Quizzes;
+import com.app.util.DbUtil;
+import java.sql.*;
+
+public class QuizDao implements AutoCloseable {
+
+    private Connection connection;
+
+    public QuizDao() throws SQLException {
+        connection = DbUtil.getConnection();
+    }
+
+    public int insertQuiz(Quizzes quiz) throws SQLException {
+        String sql = "INSERT INTO quizzes (title, creator_id) VALUES (?, ?)";
+        try (PreparedStatement stmt =
+                     connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, quiz.getTitle());
+            stmt.setInt(2, quiz.getCreator_id());
+            stmt.executeUpdate();
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            rs.next();
+            return rs.getInt(1);
+        }
+    }
+    
+    
+    public List<Quizzes> selectQuiz() throws SQLException {
+
+        List<Quizzes> list = new ArrayList<>();
+        String sql = "SELECT quiz_id, title FROM quizzes";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Quizzes q = new Quizzes();
+                q.setQuiz_id(rs.getInt(1));
+                q.setTitle(rs.getString(2));
+                list.add(q);
+            }
+        }
+        return list;
+    }
+
+    
+    
+    
+    @Override
+    public void close() throws SQLException {
+        if (connection != null)
+            connection.close();
+    }
+}
