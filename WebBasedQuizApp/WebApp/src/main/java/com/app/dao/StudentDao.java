@@ -1,0 +1,62 @@
+package com.app.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.app.model.Users;
+import com.app.util.DbUtil;
+
+public class StudentDao implements AutoCloseable {
+
+    private Connection con;
+
+    public StudentDao() throws SQLException {
+        con = DbUtil.getConnection();
+    }
+
+    public int studentLogin(String email, String password) throws SQLException {
+
+        String sql = "SELECT user_id FROM users WHERE email=? AND password_hash=? AND role='student'";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next())
+                return rs.getInt(1);
+        }
+        return -1;
+    }
+
+    public int studentAdd(Users user) throws SQLException {
+
+        String checkSql = "SELECT user_id FROM users WHERE email=?";
+        try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
+            checkStmt.setString(1, user.getEmail());
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next())
+                return -1;
+        }
+
+        String sql = "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,'student')";
+        try (PreparedStatement stmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, user.getPassword());
+            stmt.executeUpdate();
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            rs.next();
+            return rs.getInt(1);
+        }
+    }
+
+    @Override
+    public void close() throws SQLException {
+        if (con != null)
+            con.close();
+    }
+}
