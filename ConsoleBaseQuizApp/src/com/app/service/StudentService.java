@@ -38,6 +38,61 @@ public class StudentService {
             e.printStackTrace();
         }
     }
+
+
+
+        public void registerStudent(Scanner sc) {
+
+        System.out.print("Enter Name : ");
+        String name = sc.next();
+
+        System.out.print("Enter Email : ");
+        String email = sc.next();
+
+        System.out.print("Enter Password : ");
+        String password = sc.next();
+
+        try (StudentDao sd = new StudentDao()) {
+
+            Users user = new Users();
+            user.setName(name);
+            user.setEmail(email);
+            user.setPassword(password);
+
+            int studentId = sd.studentAdd(user);
+
+            if (studentId != -1) {
+                System.out.println("Student Registration Successful\n");
+                sdm.studentMenu(sc, studentId);
+            } else {
+                System.out.println("Student already exists");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void viewScores(int studentId) {
+
+        try (QuizAttemptsDao dao = new QuizAttemptsDao()) {
+
+            List<String> scores = dao.getStudentScores(studentId);
+
+            if (scores.isEmpty()) {
+                System.out.println("No quiz attempts found.");
+                return;
+            }
+
+            System.out.println("\nYour Scores:");
+            for (String s : scores) {
+                System.out.println(s);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public void takeQuiz(Scanner sc, int studentId) {
 

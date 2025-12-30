@@ -29,6 +29,28 @@ public class StudentDao implements AutoCloseable {
         }
         return -1;
     }
+    public int studentAdd(Users user) throws SQLException {
+
+        String checkSql = "SELECT user_id FROM users WHERE email=?";
+        try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
+            checkStmt.setString(1, user.getEmail());
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next())
+                return -1;
+        }
+
+        String sql = "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,'student')";
+        try (PreparedStatement stmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, user.getPassword());
+            stmt.executeUpdate();
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            rs.next();
+            return rs.getInt(1);  
+        }
+    }
     
     @Override
     public void close() throws SQLException {
